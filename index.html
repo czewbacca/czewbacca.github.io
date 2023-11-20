@@ -1,11 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Wetten Dass..? Bullshit-Bingo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+
+        #bingo-board {
+            position: absolute;
+            left: 0;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            min-height: 80%;
+            min-width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .bingo-cell {
+            border: 1px solid #ccc;
+            padding: 15px;
+            text-align: center;
+            font-size: 14px;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        var seed = null;
+    </script>
 </head>
+
 <body>
-    
+    <h1>Wetten Dass..? Bullshit-Bingo</h1>
+    <button onclick="generateBingo()" id="generate-button">Bingo generieren!</button>
+    <div id="bingo-board"></div>
+
+    <script>
+        const queryString = window.location.search;
+        var urlParams = new URLSearchParams(queryString);
+
+        const bingoValues = [
+            "Gottschalk berührt Frauenbein",
+            "Baggerwette",
+            "Hazel Brugger macht Witz über Gottschalk",
+            "Gottschalk mixt bei internationalem Gast Deutsch und Englisch",
+            "\"Das kennen die jungen Leute ja gar nicht mehr.\"",
+            "\"Früher war das...\"",
+            "Gottschalk lässt sich von Shirin David die jungen Leute erklären",
+            "Gottschalk lässt sich von jemandem die jungen Leute erklären",
+            "Helene Fischers Sturz wird Thema",
+            "Publikum klatscht zu Song auf alle Zählzeiten",
+            "Publikum applaudiert nach \"Früher war alles besser\"-Referenz",
+            "Witz zum Gendern",
+            "Witz auf Kosten non-binärer Personen",
+            "Gesprächsthema \"Robbie Williams & Thake That\"",
+            "Wettkandidat heißt Dieter, Günther, Klaus oder Peter",
+            "Gottschalk zu Wettkandidatin: \"als Frau\" / \"für eine Frau\"",
+            "Wette beinhaltet Bier / Bierkästen / Kronkorken / ...",
+            "Gottschalks Hand geht bei Umarmung zu tief",
+            "Gottschalk vergisst, wie die Sendung weitergeht",
+            "Gottschalk überzieht (Sendezeit: 20:15 - 23:15)",
+            "Jemand im Publikum hat Take-That-Plaket mit ausgeschnittenen Bandmitgliedern",
+            "Gottschalk schaut nach einem Witz erwartungsvoll ins Publikum",
+            "Übertragungsprobleme bei Außenwette",
+            "Gottschalk gibt zur Begrüßung ein Küsschen mehr als das Gegenüber erwartet",
+            "Jemand schreit: \"Helene!!!\"",
+            "Es gibt einen Video-Rückblick auf 150 Jahre Wetten Dass",
+            "Frank Elstner taucht auf",
+            "Markus Lanz taucht auf",
+            "Gottschalk sitzt schräg mit überschlagenen Beinen und Arm auf der Rückenlehne auf dem Sofa",
+            "Gottschalk fällt jemandem ins Wort",
+            "Gottschalk belehrt Lena Mantler",
+            "Gottschalk lässt sich von Lena Mantler Tiktok erklären",
+            "Es wird plötzlich über Energiepolitik geredet",
+            "Gottschalk vergleicht sein Outfit mit dem eines Gasts",
+            "Jemand muss frühzeitig weg",
+            "Der / die Wettpat:in versteht beim ersten Erklären die Wette nicht",
+            "Samuel Koch wird erwähnt",
+            "Gottschalk spricht an, dass Hazel Brugger Schweizerin ist",
+            "Bei einem neuen Gast besteht Gottschalk auf Änderung der Sitzordnung",
+            "Gottschalk spricht an, dass er fürs Überziehen der Sendung bekannt ist"
+        ];
+        function hasParams(){
+            urlParams = new URLSearchParams(queryString);
+            if (urlParams.get('seed') != null) {
+                return true;
+            } else return false;
+        }
+
+        function toggleGenerateButton(){
+            document.getElementById("generate-button").hidden = !document.getElementById("generate-button").hidden;
+        }
+
+        function generateBingo() {
+            seed =  urlParams.get('seed') || Math.random().toString(36).substring(7);
+            const shuffledValues = shuffleArray(bingoValues, seed);
+            const bingoBoard = document.getElementById("bingo-board");
+            bingoBoard.innerHTML = "";
+
+            // for (let i = 0; i < 25; i++) {
+            //     const cell = document.createElement("div");
+            //     cell.classList.add("bingo-cell");
+            //     cell.textContent = shuffledValues[i];
+            //     cell.addEventListener("click", () => markCell(cell));
+            //     bingoBoard.appendChild(cell);
+            // }
+            const bingoBoardArray = [[],[],[],[],[]];
+            for (let i = 0; i < 5; i++) {
+                for (let j = 0; j < 5; j++) {
+                    const cell = document.createElement("div");
+                    cell.classList.add("bingo-cell");
+                    cell.textContent = shuffledValues[(i*5)+j];
+                    cell.addEventListener("click", () => markCell(cell));
+                    bingoBoard.appendChild(cell);
+                    bingoBoardArray[i].push(cell);
+                }
+            }
+            console.log(bingoBoardArray);
+
+            // Update the URL with the seed
+            window.history.replaceState({}, document.title, `?seed=${seed}`);
+            toggleGenerateButton();
+        }
+
+        function markCell(cell) {
+            cell.style.backgroundColor = "lightgreen";
+            checkForBingo();
+        }
+
+        function checkForBingo() {
+            //
+        }
+
+        function shuffleArray(array, seed) {
+            const shuffledArray = [...array];
+            let currentIndex = shuffledArray.length, randomIndex;
+
+            // Use seed to make shuffling deterministic
+            Math.seedrandom(seed);
+
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+
+                [shuffledArray[currentIndex], shuffledArray[randomIndex]] = [
+                    shuffledArray[randomIndex], shuffledArray[currentIndex]
+                ];
+            }
+
+            return shuffledArray;
+        }
+
+        // Initial generation on page load
+        
+        //generateBingo();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
 </body>
+
 </html>
